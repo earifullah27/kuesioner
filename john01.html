@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjelajahan Diri — John Ahmad Bilal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #161618;
+    --surface2: #1e1e22;
+    --border: #2a2a30;
+    --accent: #7c6cf0;
+    --accent2: #4ecca3;
+    --text: #f0f0f4;
+    --text2: #9090a0;
+    --text3: #5a5a6a;
+    --danger: #f06060;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--border); z-index: 100;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* Wrapper */
+  .wrapper {
+    max-width: 640px; margin: 0 auto;
+    padding: 80px 24px 120px;
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  /* Sections */
+  .section { display: none; animation: fadeUp 0.4s ease forwards; }
+  .section.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Section header */
+  .section-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-tag::before {
+    content: ''; display: block; width: 20px; height: 1px; background: var(--accent);
+  }
+
+  /* Cover */
+  .cover-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 800; line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text) 40%, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .cover-sub {
+    font-size: 15px; color: var(--text2); max-width: 480px;
+    margin-bottom: 32px; line-height: 1.7;
+  }
+  .cover-note {
+    font-size: 12px; color: var(--text3);
+    border: 0.5px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  /* Question */
+  .q-num {
+    font-size: 11px; color: var(--text3);
+    font-family: 'Syne', sans-serif; letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(17px, 3vw, 22px);
+    font-weight: 600; margin-bottom: 8px; line-height: 1.35;
+    color: var(--text);
+  }
+  .q-hint { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .option {
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    cursor: pointer; transition: all 0.15s;
+    font-size: 14px; color: var(--text2);
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--surface);
+  }
+  .option:hover { border-color: var(--accent); color: var(--text); background: var(--surface2); }
+  .option.selected {
+    border-color: var(--accent); background: #7c6cf018;
+    color: var(--text);
+  }
+  .option.selected .opt-check { background: var(--accent); border-color: var(--accent); color: white; }
+  .opt-check {
+    width: 20px; height: 20px; border-radius: 5px;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .option.radio .opt-check { border-radius: 50%; }
+  .option.radio.selected .opt-check { background: var(--accent); border-color: var(--accent); }
+
+  /* Scale */
+  .scale-row {
+    display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .scale-btn {
+    width: 48px; height: 48px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text2); cursor: pointer; font-size: 15px;
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  }
+  .scale-btn:hover { border-color: var(--accent); color: var(--text); }
+  .scale-btn.selected { background: var(--accent); border-color: var(--accent); color: white; }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 24px; }
+
+  /* Textarea */
+  .q-textarea {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; padding: 14px 16px; resize: vertical;
+    min-height: 100px; outline: none; margin-bottom: 24px;
+    transition: border-color 0.15s; line-height: 1.6;
+  }
+  .q-textarea:focus { border-color: var(--accent); }
+  .q-textarea::placeholder { color: var(--text3); }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+  .btn {
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 13px; letter-spacing: 0.04em;
+    padding: 12px 24px; border-radius: 10px;
+    cursor: pointer; transition: all 0.15s; border: none;
+  }
+  .btn-primary {
+    background: var(--accent); color: white;
+  }
+  .btn-primary:hover { background: #6b5ce0; }
+  .btn-secondary {
+    background: transparent; color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--text3); }
+  .btn-finish {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white; padding: 14px 32px;
+  }
+
+  /* Counter */
+  .counter { font-size: 12px; color: var(--text3); margin-left: auto; }
+  .counter.warn { color: var(--danger); }
+
+  /* Thank you */
+  .thankyou { text-align: center; padding: 40px 0; }
+  .ty-icon { font-size: 48px; margin-bottom: 16px; }
+  .ty-title {
+    font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .ty-sub { color: var(--text2); font-size: 15px; max-width: 420px; margin: 0 auto 32px; line-height: 1.7; }
+
+  /* Summary */
+  .summary-box {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; margin-top: 24px;
+    text-align: left;
+  }
+  .sum-title { font-family: 'Syne', sans-serif; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; }
+  .sum-row { margin-bottom: 10px; }
+  .sum-q { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+  .sum-a { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+  /* Divider */
+  .q-divider { border: none; border-top: 0.5px solid var(--border); margin: 32px 0; }
+
+  /* Copy button */
+  .copy-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px;
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent2); }
+
+  .sec-label-box {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 24px;
+    font-size: 13px; color: var(--text2);
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<div class="wrapper">
+
+  <!-- COVER -->
+  <div class="section active" id="sec-cover">
+    <div class="section-tag">Penjelajahan Diri</div>
+    <h1 class="cover-title">Sebelum<br>Kamu Memilih<br>Masa Depan</h1>
+    <p class="cover-sub">Ini bukan tes. Tidak ada jawaban benar atau salah. Tujuannya sederhana: membantu kamu memahami dirimu sendiri lebih dalam — sebelum memutuskan kuliah di mana dan jadi apa.</p>
+    <div class="cover-note">
+      ⏱ Sekitar 15–20 menit &nbsp;·&nbsp; 22 pertanyaan &nbsp;·&nbsp; Jawab sejujur-jujurnya<br>
+      Jawaban kamu akan membantu keluarga mendukung pilihanmu dengan lebih tepat.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('sec-1')">Mulai →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 1: MINAT -->
+  <div class="section" id="sec-1">
+    <div class="section-tag">Bagian 1 dari 4 — Minat & Ketertarikan</div>
+
+    <div class="q-num">Pertanyaan 1 dari 22</div>
+    <p class="q-text">Dari topik-topik berikut, pilih 3 yang paling sering membuatmu penasaran dan ingin tahu lebih jauh.</p>
+    <p class="q-hint">Pilih tepat 3 opsi.</p>
+    <div class="options" id="q1">
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana teknologi dan AI bekerja di balik layar</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Mengapa sejarah dan peristiwa dunia terjadi seperti itu</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana manusia berpikir, berasa, dan berperilaku</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana musik, seni, dan kreativitas mempengaruhi orang</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana negara, hukum, dan politik bekerja di dunia</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana data dan angka bisa menceritakan sesuatu</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana bisnis dan ekonomi bergerak</div>
+      <div class="option" onclick="toggleMulti('q1',this,3)"><span class="opt-check">✓</span>Bagaimana bumi, lingkungan, dan alam semesta terbentuk</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 2 dari 22</div>
+    <p class="q-text">Ketika punya waktu bebas yang tidak ada kewajiban sama sekali, kamu biasanya ngapain?</p>
+    <p class="q-hint">Pilih semua yang berlaku.</p>
+    <div class="options" id="q2">
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Main musik (violin, gitar, atau lainnya)</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Mabar game online atau nonton esports</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Renang atau olahraga lainnya</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Dengerin musik atau bikin playlist</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Scroll konten di sosmed / YouTube</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Ngobrol atau hangout sama teman</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Baca berita, artikel, atau buku</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Eksplorasi tempat baru atau jalan-jalan</div>
+      <div class="option" onclick="toggleMulti('q2',this,99)"><span class="opt-check">✓</span>Belajar sesuatu yang baru secara mandiri</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 3 dari 22</div>
+    <p class="q-text">Pernah tidak kamu mengerjakan sesuatu sampai lupa waktu, lupa lapar, benar-benar tenggelam di dalamnya?</p>
+    <p class="q-hint">Kalau pernah, ceritakan kamu sedang ngapain saat itu. Kalau tidak pernah, tulis "belum pernah".</p>
+    <textarea class="q-textarea" id="q3" placeholder="Tulis di sini..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 4 dari 22</div>
+    <p class="q-text">Siapa satu orang yang paling kamu kagumi saat ini — bisa siapa saja — dan apa yang paling kamu kagumi dari mereka?</p>
+    <p class="q-hint">Boleh artis, atlet, ilmuwan, tokoh sejarah, atau orang yang kamu kenal langsung.</p>
+    <textarea class="q-textarea" id="q4" placeholder="Nama dan alasannya..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 5 dari 22</div>
+    <p class="q-text">Kalau kamu diberi uang Rp 20 juta dan 3 bulan bebas — tidak ada sekolah, tidak ada kewajiban — kamu mau bikin atau pelajari apa?</p>
+    <textarea class="q-textarea" id="q5" placeholder="Tidak ada jawaban yang salah di sini..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo('sec-cover')">← Kembali</button>
+      <button class="btn btn-primary" onclick="goTo('sec-2')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 2: CARA BELAJAR -->
+  <div class="section" id="sec-2">
+    <div class="section-tag">Bagian 2 dari 4 — Cara Belajar & Bekerja</div>
+
+    <div class="q-num">Pertanyaan 6 dari 22</div>
+    <p class="q-text">Kamu lebih suka belajar dengan cara mana?</p>
+    <div class="options" id="q6">
+      <div class="option radio" onclick="selectRadio('q6',this)"><span class="opt-check"></span>Langsung praktik dan coba-coba, baru ngerti teorinya belakangan</div>
+      <div class="option radio" onclick="selectRadio('q6',this)"><span class="opt-check"></span>Pahami dulu konsep dan teorinya, baru eksekusi</div>
+      <div class="option radio" onclick="selectRadio('q6',this)"><span class="opt-check"></span>Diskusi dan debat sama orang lain sampai paham</div>
+      <div class="option radio" onclick="selectRadio('q6',this)"><span class="opt-check"></span>Baca atau tonton sendiri dalam ketenangan, tidak perlu diajarkan</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 7 dari 22</div>
+    <p class="q-text">Kamu lebih nyaman bekerja atau berkarya dalam kondisi seperti apa?</p>
+    <div class="options" id="q7">
+      <div class="option radio" onclick="selectRadio('q7',this)"><span class="opt-check"></span>Sendiri, fokus, tanpa gangguan — saya lebih produktif begitu</div>
+      <div class="option radio" onclick="selectRadio('q7',this)"><span class="opt-check"></span>Dalam tim kecil yang sudah saling kenal</div>
+      <div class="option radio" onclick="selectRadio('q7',this)"><span class="opt-check"></span>Lingkungan ramai dengan banyak interaksi dan kolaborasi</div>
+      <div class="option radio" onclick="selectRadio('q7',this)"><span class="opt-check"></span>Fleksibel, tergantung situasi dan jenis pekerjaan</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 8 dari 22</div>
+    <p class="q-text">Mana yang paling menggambarkan caramu menghadapi masalah baru?</p>
+    <div class="options" id="q8">
+      <div class="option radio" onclick="selectRadio('q8',this)"><span class="opt-check"></span>Langsung coba solusi — belajar dari kesalahan lebih cepat</div>
+      <div class="option radio" onclick="selectRadio('q8',this)"><span class="opt-check"></span>Riset dulu sebanyak mungkin sebelum bertindak</div>
+      <div class="option radio" onclick="selectRadio('q8',this)"><span class="opt-check"></span>Tanya orang yang lebih berpengalaman</div>
+      <div class="option radio" onclick="selectRadio('q8',this)"><span class="opt-check"></span>Amati bagaimana orang lain menghadapinya, lalu adaptasi</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 9 dari 22</div>
+    <p class="q-text">Apa yang paling sering bikin kamu frustrasi atau males dalam konteks belajar atau mengerjakan sesuatu?</p>
+    <textarea class="q-textarea" id="q9" placeholder="Misalnya: tugas yang terasa tidak ada gunanya, guru yang membosankan, dll..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 10 dari 22</div>
+    <p class="q-text">Dari dua pernyataan ini, mana yang lebih mencerminkan kamu?</p>
+    <div class="options" id="q10">
+      <div class="option radio" onclick="selectRadio('q10',this)"><span class="opt-check"></span>"Aku lebih suka menguasai satu hal secara sangat dalam daripada tahu banyak hal secara dangkal"</div>
+      <div class="option radio" onclick="selectRadio('q10',this)"><span class="opt-check"></span>"Aku lebih tertarik menjelajahi banyak bidang berbeda dan melihat koneksi di antaranya"</div>
+      <div class="option radio" onclick="selectRadio('q10',this)"><span class="opt-check"></span>"Aku belum tahu — tergantung situasinya"</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo('sec-1')">← Kembali</button>
+      <button class="btn btn-primary" onclick="goTo('sec-3')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 3: MASA DEPAN -->
+  <div class="section" id="sec-3">
+    <div class="section-tag">Bagian 3 dari 4 — Gambaran Masa Depan</div>
+
+    <div class="q-num">Pertanyaan 11 dari 22</div>
+    <p class="q-text">Di usia 30, kamu membayangkan dirimu sedang ngapain?</p>
+    <p class="q-hint">Tidak harus logis atau realistis. Tulis gambaran hari-hari kamu — bukan title pekerjaan, tapi aktivitasnya.</p>
+    <textarea class="q-textarea" id="q11" style="min-height:120px" placeholder="Misalnya: aku lagi di kota X, bekerja di..., sehari-hari aku..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 12 dari 22</div>
+    <p class="q-text">Negara atau kota mana yang paling ingin kamu tinggali? Kenapa?</p>
+    <textarea class="q-textarea" id="q12" placeholder="Sebutkan negaranya dan alasan spesifiknya..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 13 dari 22</div>
+    <p class="q-text">Dari daftar ini, pilih 3 hal yang paling penting dalam karier atau hidup yang kamu inginkan.</p>
+    <p class="q-hint">Pilih tepat 3.</p>
+    <div class="options" id="q13">
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Penghasilan tinggi</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Kebebasan dan otonomi — tidak terikat atasan</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Dampak nyata terhadap masyarakat</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Pengakuan dan prestise</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Terus belajar hal baru setiap hari</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Stabilitas dan keamanan jangka panjang</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Bisa berkreasi dan berinovasi</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Bisa tinggal dan bekerja di berbagai negara</div>
+      <div class="option" onclick="toggleMulti('q13',this,3)"><span class="opt-check">✓</span>Kompetisi dan tantangan yang memacu adrenalin</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 14 dari 22</div>
+    <p class="q-text">Ada bidang atau jenis pekerjaan yang sudah kamu yakini tidak mau dijalani — apapun alasannya?</p>
+    <textarea class="q-textarea" id="q14" placeholder="Kalau tidak ada, tulis 'belum tahu'..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 15 dari 22</div>
+    <p class="q-text">Kalau harus memilih, kamu lebih ingin menjadi apa?</p>
+    <div class="options" id="q15">
+      <div class="option radio" onclick="selectRadio('q15',this)"><span class="opt-check"></span>Ahli terdalam di satu bidang yang sangat spesifik</div>
+      <div class="option radio" onclick="selectRadio('q15',this)"><span class="opt-check"></span>Pembangun — yang membangun produk, bisnis, atau karya</div>
+      <div class="option radio" onclick="selectRadio('q15',this)"><span class="opt-check"></span>Pemimpin — yang menggerakkan orang dan organisasi</div>
+      <div class="option radio" onclick="selectRadio('q15',this)"><span class="opt-check"></span>Penjelajah — yang berpindah peran dan terus mencoba hal baru</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo('sec-2')">← Kembali</button>
+      <button class="btn btn-primary" onclick="goTo('sec-4')">Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- SECTION 4: SELF-ASSESSMENT -->
+  <div class="section" id="sec-4">
+    <div class="section-tag">Bagian 4 dari 4 — Kenali Dirimu</div>
+
+    <div class="q-num">Pertanyaan 16 dari 22</div>
+    <p class="q-text">Dari kemampuan berikut, tandai 3–4 yang menurutmu paling kuat dalam dirimu sekarang.</p>
+    <div class="options" id="q16">
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Logika — saya suka memecahkan masalah secara sistematis</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Kreativitas — ide-ide baru terus muncul di kepala saya</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Komunikasi — saya mudah menjelaskan sesuatu ke orang lain</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Empati — saya cepat memahami apa yang orang lain rasakan</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Ketekunan — saya bisa bertahan di satu hal untuk waktu lama</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Teknis — matematika, angka, atau coding terasa natural</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Kepemimpinan — orang sering mengikuti inisiatif saya</div>
+      <div class="option" onclick="toggleMulti('q16',this,4)"><span class="opt-check">✓</span>Bahasa — menulis, berbicara, atau bercerita adalah kekuatan saya</div>
+    </div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 17 dari 22</div>
+    <p class="q-text">Seberapa besar keinginanmu untuk kuliah di luar negeri?</p>
+    <p class="q-hint">1 = tidak terlalu penting &nbsp;·&nbsp; 5 = ini adalah prioritas utama saya</p>
+    <div class="scale-row" id="q17">
+      <button class="scale-btn" onclick="selectScale('q17',this)">1</button>
+      <button class="scale-btn" onclick="selectScale('q17',this)">2</button>
+      <button class="scale-btn" onclick="selectScale('q17',this)">3</button>
+      <button class="scale-btn" onclick="selectScale('q17',this)">4</button>
+      <button class="scale-btn" onclick="selectScale('q17',this)">5</button>
+    </div>
+    <div class="scale-labels"><span>Tidak terlalu penting</span><span>Prioritas utama</span></div>
+
+    <div class="q-num">Pertanyaan 18 dari 22</div>
+    <p class="q-text">Seberapa nyaman kamu dengan ketidakpastian — situasi yang tidak ada jaminannya?</p>
+    <p class="q-hint">1 = saya butuh kepastian dan keamanan &nbsp;·&nbsp; 5 = justru lebih semangat</p>
+    <div class="scale-row" id="q18">
+      <button class="scale-btn" onclick="selectScale('q18',this)">1</button>
+      <button class="scale-btn" onclick="selectScale('q18',this)">2</button>
+      <button class="scale-btn" onclick="selectScale('q18',this)">3</button>
+      <button class="scale-btn" onclick="selectScale('q18',this)">4</button>
+      <button class="scale-btn" onclick="selectScale('q18',this)">5</button>
+    </div>
+    <div class="scale-labels" style="margin-bottom:24px"><span>Butuh kepastian</span><span>Suka tantangan</span></div>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 19 dari 22</div>
+    <p class="q-text">Mata pelajaran apa yang paling kamu nikmati prosesnya — bukan nilainya — dan kenapa?</p>
+    <textarea class="q-textarea" id="q19" placeholder="Proses belajarnya terasa seperti apa?"></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 20 dari 22</div>
+    <p class="q-text">Kalau kamu harus jujur, apa yang paling kamu takutkan atau khawatirkan soal masa depan?</p>
+    <textarea class="q-textarea" id="q20" placeholder="Tidak ada yang akan menghakimi jawabanmu di sini..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 21 dari 22</div>
+    <p class="q-text">Apakah ada hal yang ingin kamu lakukan atau pelajari yang belum pernah kamu katakan ke siapapun karena takut dianggap aneh atau tidak realistis?</p>
+    <textarea class="q-textarea" id="q21" placeholder="Ruang ini aman..."></textarea>
+
+    <hr class="q-divider">
+
+    <div class="q-num">Pertanyaan 22 dari 22</div>
+    <p class="q-text">Satu kalimat yang paling menggambarkan siapa kamu saat ini — bukan siapa yang diharapkan orang lain.</p>
+    <textarea class="q-textarea" id="q22" style="min-height:70px" placeholder="Satu kalimat saja..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo('sec-3')">← Kembali</button>
+      <button class="btn btn-finish" onclick="finish()">Selesai & Simpan →</button>
+    </div>
+  </div>
+
+  <!-- THANK YOU -->
+  <div class="section" id="sec-done">
+    <div class="thankyou">
+      <div class="ty-icon">✦</div>
+      <h2 class="ty-title">Terima kasih, John.</h2>
+      <p class="ty-sub">Jawaban kamu sudah tersimpan di bawah. Tidak ada yang menghakimi di sini — ini hanya tentang mengenali dirimu lebih dalam.</p>
+      <button class="copy-btn" onclick="copyResults()">📋 Salin semua jawaban</button>
+    </div>
+    <div class="summary-box" id="summaryBox"></div>
+  </div>
+
+</div>
+
+<script>
+  const sections = ['sec-cover','sec-1','sec-2','sec-3','sec-4','sec-done'];
+  const totalSections = 5; // excluding cover
+
+  function goTo(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    updateProgress(id);
+  }
+
+  function updateProgress(id) {
+    const idx = sections.indexOf(id);
+    const pct = idx <= 0 ? 0 : Math.min(100, Math.round((idx / (sections.length-1)) * 100));
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  function toggleMulti(groupId, el, max) {
+    const selected = document.querySelectorAll(`#${groupId} .option.selected`);
+    if (el.classList.contains('selected')) {
+      el.classList.remove('selected');
+    } else {
+      if (selected.length >= max) {
+        // flash first selected
+        const first = document.querySelector(`#${groupId} .option.selected`);
+        if(first) { first.style.outline='2px solid #f06060'; setTimeout(()=>first.style.outline='',600); }
+        return;
+      }
+      el.classList.add('selected');
+    }
+  }
+
+  function selectRadio(groupId, el) {
+    document.querySelectorAll(`#${groupId} .option`).forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectScale(groupId, btn) {
+    document.querySelectorAll(`#${groupId} .scale-btn`).forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function getVal(id) {
+    const el = document.getElementById(id);
+    if (!el) return '—';
+    // textarea
+    if (el.tagName === 'TEXTAREA') return el.value.trim() || '—';
+    // options group
+    const sel = el.querySelectorAll('.option.selected');
+    if (sel.length) return Array.from(sel).map(o=>o.textContent.replace('✓','').trim()).join(' | ');
+    // scale
+    const sb = el.querySelector('.scale-btn.selected');
+    if (sb) return sb.textContent.trim();
+    return '—';
+  }
+
+  const questions = [
+    {id:'q1', label:'Topik yang paling membuatku penasaran'},
+    {id:'q2', label:'Aktivitas waktu bebas'},
+    {id:'q3', label:'Pengalaman "flow" / lupa waktu'},
+    {id:'q4', label:'Tokoh yang dikagumi'},
+    {id:'q5', label:'Kalau ada 3 bulan bebas'},
+    {id:'q6', label:'Cara belajar'},
+    {id:'q7', label:'Kondisi kerja yang disukai'},
+    {id:'q8', label:'Cara menghadapi masalah'},
+    {id:'q9', label:'Yang sering membuatku frustrasi'},
+    {id:'q10', label:'Generalis vs spesialis'},
+    {id:'q11', label:'Bayangan usia 30'},
+    {id:'q12', label:'Negara/kota yang ingin ditinggali'},
+    {id:'q13', label:'3 hal terpenting dalam karier'},
+    {id:'q14', label:'Yang tidak ingin dijalani'},
+    {id:'q15', label:'Tipe peran yang diinginkan'},
+    {id:'q16', label:'Kemampuan terkuat'},
+    {id:'q17', label:'Keinginan kuliah LN (1–5)'},
+    {id:'q18', label:'Kenyamanan dengan ketidakpastian (1–5)'},
+    {id:'q19', label:'Pelajaran yang paling dinikmati'},
+    {id:'q20', label:'Ketakutan tentang masa depan'},
+    {id:'q21', label:'Impian yang belum pernah diceritakan'},
+    {id:'q22', label:'Satu kalimat tentang diri'},
+  ];
+
+  function finish() {
+    const box = document.getElementById('summaryBox');
+    const now = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    let html = `<div class="sum-title">Jawaban — John Ahmad Bilal Arifullah &nbsp;·&nbsp; ${now}</div>`;
+    questions.forEach((q,i) => {
+      html += `<div class="sum-row"><div class="sum-q">${i+1}. ${q.label}</div><div class="sum-a">${getVal(q.id)}</div></div>`;
+    });
+    box.innerHTML = html;
+    goTo('sec-done');
+  }
+
+  function copyResults() {
+    let text = 'JAWABAN KUESIONER — JOHN AHMAD BILAL ARIFULLAH\n';
+    text += '='.repeat(50) + '\n\n';
+    questions.forEach((q,i) => {
+      text += `${i+1}. ${q.label}\n→ ${getVal(q.id)}\n\n`;
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = '✓ Tersalin!';
+      setTimeout(() => btn.innerHTML = '📋 Salin semua jawaban', 2000);
+    });
+  }
+</script>
+</body>
+</html>
